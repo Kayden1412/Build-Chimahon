@@ -7,7 +7,8 @@ Nothing is cloned or built locally by this repository.
 At workflow time it:
 
 1. Clones `Kayden1412/chimahon` (default ref: `main`) with submodules.
-2. Applies `patches/0001-rename-test-package.patch`.
+2. Applies every patch in `patches/` (package rename and dependency-resolution
+   hardening).
 3. Fetches the native dictionary renderer dependencies.
 4. Builds the APK.
 5. Uploads the APK as a workflow artifact.
@@ -46,8 +47,10 @@ To test an older source revision, set **ref** to a branch, tag, or commit SHA.
 ## Notes
 
 - No repository secrets are required for `assembleDebug` or `assemblePreview`.
+- Plugin-classpath dependencies prefer Maven Central before the Gradle Plugin
+  Portal, avoiding transient `plugins.gradle.org` resolution failures.
 - The first run downloads the native dependencies and can take a while. Later
   runs restore them from the Actions cache.
-- If the source files change so the patch no longer applies, the workflow fails
-  at the **Apply test-package patch** step instead of silently building the
+- If the source files change so a patch no longer applies, the workflow fails
+  at the **Apply build patches** step instead of silently building the
   original package name.

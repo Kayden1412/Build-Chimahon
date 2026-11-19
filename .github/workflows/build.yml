@@ -50,18 +50,22 @@ jobs:
           git submodule update --init --recursive
           git log -1 --format='Source commit: %H%nSubject: %s'
 
-      - name: Apply test-package patch
+      - name: Apply build patches
         working-directory: chimahon
         run: |
           set -euo pipefail
-          git apply --verbose ../patches/0001-rename-test-package.patch
+          for patch in ../patches/*.patch; do
+            echo "Applying $patch"
+            git apply --verbose "$patch"
+          done
 
-          # Fail loudly if the source layout ever changes underneath the patch.
+          # Fail loudly if the source layout ever changes underneath the patches.
           grep -q 'applicationId = "app.chimahon.test"' app/build.gradle.kts
           grep -q 'app.chimahon.test.google.oauth' app/src/main/AndroidManifest.xml
           grep -q 'app.chimahon.test.google.oauth:/oauth2redirect' \
             app/src/main/java/eu/kanade/tachiyomi/data/sync/service/GoogleDriveSyncService.kt
           grep -q '>Chimahon Test<' i18n/src/commonMain/moko-resources/base/strings.xml
+          grep -q 'pluginManagement {' buildSrc/settings.gradle.kts
           echo "Package renamed to app.chimahon.test (debug: app.chimahon.test.dev)"
 
       - name: Set up JDK 21
