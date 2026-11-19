@@ -1,0 +1,98 @@
+name: Build Chimahon test APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag, or commit SHA of Kayden1412/chimahon"
+        required: true
+        default: "main"
+      task:
+        description: "Gradle assemble task"
+        type: choice
+        required: true
+        default: "assembleDebug"
+        options:
+          - assembleDebug
+          - assemblePreview
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-chimahon-${{ inputs.ref }}-${{ inputs.task }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ inputs.task }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    steps:
+      - name: Check out this build project
+        uses: actions/checkout@v4
+
+      - name: Clone Chimahon
+        env:
+          CHIMAHON_REF: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          mkdir chimahon
+          cd chimahon
+          git init -q
+          git remote add origin https://github.com/Kayden1412/chimahon.git
+          # hoshidicts has nested submodules with git@github.com: URLs.
+          # CI has no SSH key, so rewrite them to HTTPS.
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+          git fetch --depth 1 origin "$CHIMAHON_REF"
+          git checkout -q --detach FETCH_HEAD
+          git submodule update --init --recursive
+          git log -1 --format='Source commit: %H%nSubject: %s'
+
+      - name: Apply test-package patch
+        working-directory: chimahon
+        run: |
+          set -euo pipefail
+          git apply --verbose ../patches/0001-rename-test-package.patch
+
+          # Fail loudly if the source layout ever changes underneath the patch.
+          grep -q 'applicationId = "app.chimahon.test"' app/build.gradle.kts
+          grep -q 'app.chimahon.test.google.oauth' app/src/main/AndroidManifest.xml
+          grep -q 'app.chimahon.test.google.oauth:/oauth2redirect' \
+            app/src/main/java/eu/kanade/tachiyomi/data/sync/service/GoogleDriveSyncService.kt
+          grep -q '>Chimahon Test<' i18n/src/commonMain/moko-resources/base/strings.xml
+          echo "Package renamed to app.chimahon.test (debug: app.chimahon.test.dev)"
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # The renderer's third-party sources are gitignored and must be fetched
+      # before the native build.
+      - name: Cache native dictionary dependencies
+        uses: actions/cache@v4
+        with:
+          path: chimahon/tools/native-dictionary/.deps
+          key: native-dictionary-deps-${{ hashFiles('chimahon/scripts/fetch-native-dictionary-deps.sh') }}
+
+      - name: Fetch native dictionary dependencies
+        working-directory: chimahon
+        run: bash scripts/fetch-native-dictionary-deps.sh
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build APK
+        working-directory: chimahon
+        run: ./gradlew "${{ inputs.task }}" --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: chimahon-test-${{ inputs.task }}-${{ github.run_number }}
+          path: chimahon/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 30

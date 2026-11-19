@@ -1,0 +1,47 @@
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+--- a/app/build.gradle.kts
++++ b/app/build.gradle.kts
+@@ -52,7 +52,7 @@
+     namespace = "eu.kanade.tachiyomi"
+ 
+     defaultConfig {
+-        applicationId = "app.chimahon"
++        applicationId = "app.chimahon.test"
+ 
+         versionCode = releaseVersionCode ?: 3
+         versionName = releaseVersionName ?: "1.1.0"
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -308,7 +308,7 @@
+                 <category android:name="android.intent.category.BROWSABLE" />
+ 
+                 <data
+-                    android:scheme="app.chimahon.google.oauth" />
++                    android:scheme="app.chimahon.test.google.oauth" />
+             </intent-filter>
+         </activity>
+ 
+diff --git a/app/src/main/java/eu/kanade/tachiyomi/data/sync/service/GoogleDriveSyncService.kt b/app/src/main/java/eu/kanade/tachiyomi/data/sync/service/GoogleDriveSyncService.kt
+--- a/app/src/main/java/eu/kanade/tachiyomi/data/sync/service/GoogleDriveSyncService.kt
++++ b/app/src/main/java/eu/kanade/tachiyomi/data/sync/service/GoogleDriveSyncService.kt
+@@ -245,7 +245,7 @@
+ class GoogleDriveService(private val context: Context) {
+     var driveService: Drive? = null
+     companion object {
+-        const val REDIRECT_URI = "app.chimahon.google.oauth:/oauth2redirect"
++        const val REDIRECT_URI = "app.chimahon.test.google.oauth:/oauth2redirect"
+     }
+     private val syncPreferences = Injekt.get<SyncPreferences>()
+ 
+diff --git a/i18n/src/commonMain/moko-resources/base/strings.xml b/i18n/src/commonMain/moko-resources/base/strings.xml
+--- a/i18n/src/commonMain/moko-resources/base/strings.xml
++++ b/i18n/src/commonMain/moko-resources/base/strings.xml
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="app_name" translatable="false">Chimahon</string>
++    <string name="app_name" translatable="false">Chimahon Test</string>
+ 
+     <!-- Generic strings -->
+     <string name="on">On</string>
