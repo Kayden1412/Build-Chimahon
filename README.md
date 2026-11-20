@@ -42,16 +42,7 @@ original Chimahon without replacing or updating it.
    artifact and install the APK from it. Use the `...-universal` artifact only
    if the arm64 build does not install.
 
-The current `Kayden1412/chimahon` `main` contains three fixes, all verified on a
-device:
-
-- `ea71c0f` - anime library pager crash on an invalid initial page
-- `decf887` - anime library crash on an unexpected display mode
-- `077d61d` - panorama display mode not applying the panorama cover layout
-
-It also contains `60e6fee` - native dictionary renderer font crash.
-
-To test an older source revision, set **ref** to a branch, tag, or commit SHA.
+To test a different source revision, set **ref** to a branch, tag, or commit SHA.
 
 ## Notes
 
