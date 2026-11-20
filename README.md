@@ -11,7 +11,11 @@ At workflow time it:
    hardening).
 3. Fetches the native dictionary renderer dependencies.
 4. Builds the APK.
-5. Uploads the APK as a workflow artifact.
+5. Uploads the installable APKs as workflow artifacts.
+
+The build produces the usual ABI splits plus a universal APK. Only the
+`arm64-v8a` and `universal` APKs are uploaded, each as its own artifact, so a
+download does not include the x86 or 32-bit splits.
 
 ## Package rename
 
@@ -34,13 +38,18 @@ original Chimahon without replacing or updating it.
 2. Pick the source ref and task:
    - `assembleDebug` (default) builds the fast, debuggable APK.
    - `assemblePreview` builds the release-like preview APK.
-3. When the run finishes, download the `chimahon-test-<task>-<run>` artifact
-   and install the APK from it.
+3. When the run finishes, download the `chimahon-test-<task>-<run>-arm64-v8a`
+   artifact and install the APK from it. Use the `...-universal` artifact only
+   if the arm64 build does not install.
 
-The current `Kayden1412/chimahon` `main` contains both fixes:
+The current `Kayden1412/chimahon` `main` contains three fixes, all verified on a
+device:
 
-- `60e6fee` - native dictionary renderer font crash
-- `ea71c0f` - anime library pager crash
+- `ea71c0f` - anime library pager crash on an invalid initial page
+- `decf887` - anime library crash on an unexpected display mode
+- `077d61d` - panorama display mode not applying the panorama cover layout
+
+It also contains `60e6fee` - native dictionary renderer font crash.
 
 To test an older source revision, set **ref** to a branch, tag, or commit SHA.
 
