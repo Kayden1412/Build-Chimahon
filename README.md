@@ -7,8 +7,7 @@ Nothing is cloned or built locally by this repository.
 At workflow time it:
 
 1. Clones `Kayden1412/chimahon` (default ref: `main`) with submodules.
-2. Applies every patch in `patches/` (package rename and dependency-resolution
-   hardening).
+2. Applies every patch in `patches/`.
 3. Fetches the native dictionary renderer dependencies.
 4. Builds the APK.
 5. Uploads the installable APKs as workflow artifacts.
